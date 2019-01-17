@@ -161,49 +161,69 @@
         },
         "WorkloadInstanceType": {
             "AllowedValues": [
-                "t2.large",
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
                 "m4.large",
                 "m4.xlarge",
                 "m4.2xlarge",
                 "m4.4xlarge",
                 "m4.10xlarge",
-                "m3.medium",
-                "m3.large",
-                "m3.xlarge",
-                "m3.2xlarge",
-                "c4.large",
+                "r3.xlarge",
+                "r3.2xlarge",
                 "c4.xlarge",
-                "c4.2xlarge",
-                "c4.4xlarge",
-                "c4.8xlarge",
-                "c3.large",
-                "c3.xlarge",
-                "c3.2xlarge",
-                "c3.4xlarge",
-                "c3.8xlarge",
-                "r3.large",
-                "r3.xlarge"
+                "r4.xlarge",
+                "r4.2xlarge"
             ],
             "ConstraintDescription": "Must contain valid instance type",
-            "Default": "m4.xlarge",
+            "Default": "m3.large",
             "Description": "Type of EC2 instance for the Workload instances",
             "Type": "String"
         },
         "WorkloadNodesDesiredCapacity": {
-            "Default": "2",
+            "Default": "1",
             "Description": "The desired capacity for the Workload nodes Auto Scaling group",
             "Type": "String"
         },
         "WorkloadNodesMaxSize": {
-            "Default": "4",
+            "Default": "2",
             "Description": "The maximum size of the Auto Scaling group",
             "Type": "String"
         },
         "WorkloadNodesMinSize": {
-            "Default": "2",
+            "Default": "1",
             "Description": "The minimum size of the Auto Scaling group",
             "Type": "String"
+        },
+        "RDSUser" : {
+            "Description" : "Master User Name for RDS database",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern" : "[-_a-zA-Z0-9]*",
+            "ConstraintDescription" : "It can contain only alphanumeric characters and underscores."
+        },
+        "RDSPassword" : {
+            "Description" : "Master password for RDS database",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern" : "[-_a-zA-Z0-9]*",
+            "ConstraintDescription" : "It can contain only alphanumeric characters and underscores."
+        },
+        "RDSAddress" : {
+            "Description" : "RDS Address",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "ConstraintDescription" : "It can contain only alphanumeric characters and underscores."
+        },
+        "RDSPort" : {
+            "Description" : "RDS Port",
+            "Type" : "Number"
         }
+
+
     },
     "Rules": {
         "KeyPairsNotEmpty": {
@@ -248,54 +268,29 @@
     },
     "Mappings": {
         "AWSAMIRegionMap": {
-            "AMI": {
-                "AMZNLINUXHVM": "amzn-ami-hvm-2018.03.0.20180622-x86_64-gp2"
-            },
-            "ap-northeast-1": {
-                "AMZNLINUXHVM": "ami-9c9443e3"
-            },
-            "ap-northeast-2": {
-                "AMZNLINUXHVM": "ami-ebc47185"
-            },
-            "ap-south-1": {
-                "AMZNLINUXHVM": "ami-5a8da735"
-            },
-            "ap-southeast-1": {
-                "AMZNLINUXHVM": "ami-ed838091"
-            },
-            "ap-southeast-2": {
-                "AMZNLINUXHVM": "ami-33f92051"
-            },
-            "ca-central-1": {
-                "AMZNLINUXHVM": "ami-03e86a67"
-            },
-            "eu-central-1": {
-                "AMZNLINUXHVM": "ami-a058674b"
-            },
-            "eu-west-1": {
-                "AMZNLINUXHVM": "ami-e4515e0e"
-            },
-            "eu-west-2": {
-                "AMZNLINUXHVM": "ami-b2b55cd5"
-            },
-            "sa-east-1": {
-                "AMZNLINUXHVM": "ami-83d58fef"
-            },
-            "us-east-1": {
-                "AMZNLINUXHVM": "ami-cfe4b2b0"
-            },
-            "us-east-2": {
-                "AMZNLINUXHVM": "ami-40142d25"
-            },
-            "us-west-1": {
-                "AMZNLINUXHVM": "ami-0e86606d"
-            },
-            "us-west-2": {
-                "AMZNLINUXHVM": "ami-0ad99772"
-            }
+            "us-east-1"      : { "64" : "ami-0e7ffe8f6393fafb1"},
+            "us-east-2"      : { "64" : "ami-03842aab7c2c01de6"},
+            "us-west-1"      : { "64" : "ami-0c34e80dce6fe23be"},
+            "us-west-2"      : { "64" : "ami-07e264ac15b7ac7cd"},
+            "ca-central-1"   : { "64" : "ami-0e5922fa012b649a7"},
+            "eu-central-1"   : { "64" : "ami-09461fc7611c7e271"},
+            "eu-west-1"      : { "64" : "ami-0a612c145d00126f7"},
+            "eu-west-2"      : { "64" : "ami-00467413673167306"},
+            "eu-west-3"      : { "64" : "ami-035ecf23e72460388"},
+            "ap-southeast-1" : { "64" : "ami-047a7ba41020d15dd"},
+            "ap-southeast-2" : { "64" : "ami-0d55ebbc866c2b7bd"},
+            "ap-south-1"     : { "64" : "ami-047c44c6cde47d5d1"},
+            "ap-northeast-1" : { "64" : "ami-018407a3806368dd3"},
+            "ap-northeast-2" : { "64" : "ami-0af464bde93590a5d"},
+            "sa-east-1"      : { "64" : "ami-09f7a4f812d488ede"}
         }
     },
     "Resources": {
+        "RDSInitJrsDBWaitHandle" : {
+            "Type" : "AWS::CloudFormation::WaitConditionHandle",
+            "Properties" : {
+            }
+        },
         "NotificationTopic": {
             "Type": "AWS::SNS::Topic",
             "Properties": {
@@ -350,7 +345,7 @@
                 ],
                 "AppCookieStickinessPolicy": [
                     {
-                        "CookieName": "dummy",
+                        "CookieName": "JSESSIONID",
                         "PolicyName": "WorkloadCookieStickinessPolicy"
                     }
                 ],
@@ -366,11 +361,11 @@
                 ],
                 "CrossZone": "true",
                 "HealthCheck": {
-                    "Target": "TCP:80",
+                    "Target": {"Fn::Join" : [ "", [ "HTTP:", "80", "/jasperserver-pro/login.html" ] ]},
                     "HealthyThreshold": "2",
-                    "UnhealthyThreshold": "3",
-                    "Interval": "30",
-                    "Timeout": "3"
+                    "UnhealthyThreshold": "10",
+                    "Interval": "90",
+                    "Timeout": "15"
                 }
             }
         },
@@ -458,6 +453,36 @@
                                 }
                             ]
                         }
+                    },
+                    {
+                        "PolicyName": "JRSRolePolicy",
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "rds:Describe*",
+                                        "rds:AuthorizeDBSecurityGroupIngress",
+                                        "rds:CreateDBSecurityGroup",
+                                        "rds:RevokeDBSecurityGroupIngress",
+                                        "rds:ModifyDBInstance",
+                                        "redshift:Describe*",
+                                        "redshift:AuthorizeClusterSecurityGroupIngress",
+                                        "redshift:CreateClusterSecurityGroup",
+                                        "redshift:RevokeClusterSecurityGroupIngress",
+                                        "redshift:ModifyCluster",
+                                        "ec2:DescribeSecurityGroups",
+                                        "ec2:AuthorizeSecurityGroupIngress",
+                                        "ec2:CreateSecurityGroup",
+                                        "ec2:RevokeSecurityGroupIngress",
+                                        "sqs:*",
+                                        "s3:Get*",
+                                        "s3:List*"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
                     }
                 ]
             }
@@ -471,6 +496,30 @@
                         "Ref": "SetupRole"
                     }
                 ]
+            }
+        },
+        "WorkloadInitializationInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Version": "2018-11-20",
+            "Properties": {
+                "InstanceInitiatedShutdownBehavior" : "stop",
+                "ImageId": {"Fn::FindInMap" : [ "AWSAMIRegionMap", { "Ref" : "AWS::Region" }, "64" ]},
+                "InstanceType": { "Ref" : "WorkloadInstanceType" },
+                "KeyName" : { "Ref" : "KeyPairName" },
+                "Monitoring": "false",
+                "DisableApiTermination": "false",
+                "SecurityGroupIds": [{ "Ref": "WorkloadSecurityGroup"}],
+                "SubnetId" : {"Ref": "PrivateSubnet1ID" },
+                "UserData" : {"Fn::Base64" : { "Fn::Join" : ["", [
+                    "dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                    "dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                    "dbHost=",{ "Ref": "RDSAddress" },"\n",
+                    "dbPort=",{ "Ref": "RDSPort" },"\n",
+                    "dbType=postgresql","\n",
+                    { "Ref" : "RDSInitJrsDBWaitHandle" },"\n",
+                    "autodeployDb=normal","\n",
+                    ""
+                ]]}}
             }
         },
         "WorkloadSecurityGroup": {
@@ -508,6 +557,16 @@
                 ]
             }
         },
+        "WorkloadSecurityGroupInternal" : {
+            "Type": "AWS::EC2::SecurityGroupIngress",
+            "Properties": {
+                "GroupId" : { "Fn::GetAtt": ["WorkloadSecurityGroup","GroupId"] },
+                "IpProtocol" : "tcp",
+                "FromPort" : "61616",
+                "ToPort" : "61616",
+                "SourceSecurityGroupId" : { "Fn::GetAtt": ["WorkloadSecurityGroup","GroupId"] }
+            }
+        },
         "WorkloadASLaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
@@ -534,7 +593,7 @@
                         {
                             "Ref": "AWS::Region"
                         },
-                        "AMZNLINUXHVM"
+                        "64"
                     ]
                 },
                 "InstanceMonitoring": "true",
@@ -554,36 +613,22 @@
                         "Fn::Join": [
                             "",
                             [
-                                "#!/bin/bash\n",
-                                "export PATH=$PATH:/usr/local/bin\n",
-                                "which pip &> /dev/null\n",
-                                "if [ $? -ne 0 ] ; then\n",
-                                "    echo \"PIP NOT INSTALLED\"\n",
-                                "    [ `which yum` ] && $(yum install -y epel-release; yum install -y python-pip) && echo \"PIP INSTALLED\"\n",
-                                "    [ `which apt-get` ] && apt-get -y update && apt-get -y install python-pip && echo \"PIP INSTALLED\"\n",
-                                "fi\n",
-                                "pip install --upgrade pip &> /dev/null\n",
-                                "pip install awscli --ignore-installed six &> /dev/null\n",
-                                "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
-                                "cfn-init --stack ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                " --resource WorkloadASLaunchConfig --configsets quickstart --region ",
-                                {
-                                    "Ref": "AWS::Region"
-                                },
-                                "\n",
-                                "# Signal the status from cfn-init\n",
-                                "cfn-signal -e $? --stack ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                " --resource WorkloadAutoScalingGroup --region ",
-                                {
-                                    "Ref": "AWS::Region"
-                                },
-                                "\n"
+                                "jasperserver_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/jasperserver","\n",
+                                "jasperserver_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                "jasperserver_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                "jasperserver_driverClassName=org.postgresql.Driver","\n",
+                                "sugarcrm_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/sugarcrm","\n",
+                                "sugarcrm_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                "sugarcrm_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                "sugarcrm_driverClassName=org.postgresql.Driver","\n",
+                                "foodmart_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/foodmart","\n",
+                                "foodmart_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                "foodmart_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                "foodmart_driverClassName=org.postgresql.Driver","\n",
+                                "clusterenabled=yes","\n",
+                                "queueName=",{ "Fn::GetAtt" : [ "WorkloadSqsQueue", "QueueName" ]},"\n",
+                                "s3bucket=",{ "Ref": "S3Bucket" },"\n",
+                                ""
                             ]
                         ]
                     }
@@ -724,6 +769,17 @@
                 }
             }
         },
+        "WorkloadSqsQueue" : {
+            "Type": "AWS::SQS::Queue",
+            "Properties": {
+                "DelaySeconds": 0,
+                "MessageRetentionPeriod": 3600,
+                "ReceiveMessageWaitTimeSeconds": 0,
+                "VisibilityTimeout": 1
+            }
+        },
+
+                
         "S3Bucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {

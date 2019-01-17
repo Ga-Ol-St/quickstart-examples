@@ -221,6 +221,30 @@
             "Description": "CIDR block for the VPC",
             "Type": "String"
         },
+        "RDSDbSize": {
+            "Description" : "Must be one of the following valid RDS instance types (db.m3.medium | db.m3.large | db.m3.xlarge).",
+            "Type" : "String",
+            "Default" : "db.m3.medium",
+            "AllowedValues" : [ "db.m3.medium","db.m3.large","db.m3.xlarge"],
+            "ConstraintDescription" : "Must be one of the following valid RDS instance types (db.m3.medium | db.m3.large | db.m3.xlarge)."
+        },
+        "RDSUser" : {
+            "Description" : "Master User Name for RDS database",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern" : "[-_a-zA-Z0-9]*",
+            "ConstraintDescription" : "It can contain only alphanumeric characters and underscores."
+        },
+        "RDSPassword" : {
+            "Description" : "Master password for RDS database",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "NoEcho" : "true",
+            "AllowedPattern" : "[-_a-zA-Z0-9]*",
+            "ConstraintDescription" : "It can contain only alphanumeric characters and underscores."
+        },
         "WorkloadInstanceType": {
             "AllowedValues": [
                 "t2.large",
@@ -352,8 +376,61 @@
                 }
             }
         },
-        "WorkloadStack": {
+        "DatabaseStack" : {
             "DependsOn": "BastionStack",
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/rds-postgres-cluster.template"
+                },
+                "Parameters": {
+                    "RDSDbSize": {
+                        "Ref": "RDSDbSize"
+                    },
+                    "RDSUser": {
+                        "Ref": "RDSUser"
+                    },
+                    "RDSPassword": {
+                        "Ref": "RDSPassword"
+                    },
+                    "PrivateSubnet1ID": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.PrivateSubnet1AID"
+                        ]
+                    },
+                    "PrivateSubnet2ID": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.PrivateSubnet2AID"
+                        ]
+                    },
+                    "AvailabilityZones": {
+                        "Fn::Join": [
+                            ",",
+                            {
+                                "Ref": "AvailabilityZones"
+                            }
+                        ]
+                    },
+                    "VPCID": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.VPCID"
+                        ]
+                    },
+                    "BastionSecurityGroupID": {
+                        "Fn::GetAtt": [
+                            "BastionStack",
+                            "Outputs.BastionSecurityGroupID"
+                        ]
+                    }
+                }
+            }
+
+        },
+        "WorkloadStack": {
+            "DependsOn": "DatabaseStack",
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
@@ -422,7 +499,26 @@
                             "VPCStack",
                             "Outputs.VPCID"
                         ]
+                    },
+                    "RDSUser": {
+                        "Ref": "RDSUser"
+                    },
+                    "RDSPassword": {
+                        "Ref": "RDSPassword"
+                    },
+                    "RDSAddress": {
+                        "Fn::GetAtt": [
+                            "DatabaseStack",
+                            "Outputs.Address"
+                        ]
+                    },
+                    "RDSPort": {
+                        "Fn::GetAtt": [
+                            "DatabaseStack",
+                            "Outputs.Port"
+                        ]
                     }
+
                 }
             }
         }

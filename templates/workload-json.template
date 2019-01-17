@@ -759,14 +759,6 @@
                         "PropagateAtLaunch": "true"
                     }
                 ]
-            },
-            "CreationPolicy": {
-                "ResourceSignal": {
-                    "Count": {
-                        "Ref": "WorkloadNodesDesiredCapacity"
-                    },
-                    "Timeout": "PT2H"
-                }
             }
         },
         "WorkloadSqsQueue" : {

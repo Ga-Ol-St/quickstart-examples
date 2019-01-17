@@ -783,13 +783,20 @@
         }
     },
     "Outputs": {
-        "ELBDNSName": {
-            "Description": "ELB DNS Name",
+        "ELBURL": {
+            "Description": "Wokload Getting Started URL",
             "Value": {
-                "Fn::GetAtt": [
-                    "ElasticLoadBalancer",
-                    "DNSName"
-                ]
+                "Fn::Join" : ["", ["http://",
+                    { "Fn::GetAtt": [
+                        "ElasticLoadBalancer",
+                        "DNSName"
+                        ]
+                    }
+                ]] },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-ELBURL"
+                }
             }
         }
     }

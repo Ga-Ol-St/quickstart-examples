@@ -268,27 +268,34 @@
     },
     "Mappings": {
         "AWSAMIRegionMap": {
-            "us-east-1"      : { "64" : "ami-0e7ffe8f6393fafb1"},
-            "us-east-2"      : { "64" : "ami-03842aab7c2c01de6"},
-            "us-west-1"      : { "64" : "ami-0c34e80dce6fe23be"},
-            "us-west-2"      : { "64" : "ami-07e264ac15b7ac7cd"},
-            "ca-central-1"   : { "64" : "ami-0e5922fa012b649a7"},
-            "eu-central-1"   : { "64" : "ami-09461fc7611c7e271"},
-            "eu-west-1"      : { "64" : "ami-0a612c145d00126f7"},
-            "eu-west-2"      : { "64" : "ami-00467413673167306"},
-            "eu-west-3"      : { "64" : "ami-035ecf23e72460388"},
-            "ap-southeast-1" : { "64" : "ami-047a7ba41020d15dd"},
-            "ap-southeast-2" : { "64" : "ami-0d55ebbc866c2b7bd"},
-            "ap-south-1"     : { "64" : "ami-047c44c6cde47d5d1"},
-            "ap-northeast-1" : { "64" : "ami-018407a3806368dd3"},
-            "ap-northeast-2" : { "64" : "ami-0af464bde93590a5d"},
-            "sa-east-1"      : { "64" : "ami-09f7a4f812d488ede"}
+            "us-east-1"      : { "64" : "ami-06ee706630291e653"},
+            "us-east-2"      : { "64" : ""},
+            "us-west-1"      : { "64" : ""},
+            "us-west-2"      : { "64" : ""},
+            "ca-central-1"   : { "64" : ""},
+            "eu-central-1"   : { "64" : ""},
+            "eu-west-1"      : { "64" : ""},
+            "eu-west-2"      : { "64" : ""},
+            "eu-west-3"      : { "64" : ""},
+            "ap-southeast-1" : { "64" : ""},
+            "ap-southeast-2" : { "64" : ""},
+            "ap-south-1"     : { "64" : ""},
+            "ap-northeast-1" : { "64" : ""},
+            "ap-northeast-2" : { "64" : ""},
+            "sa-east-1"      : { "64" : ""}
         }
     },
     "Resources": {
         "RDSInitJrsDBWaitHandle" : {
             "Type" : "AWS::CloudFormation::WaitConditionHandle",
             "Properties" : {
+            }
+        },
+        "RDSInitWaitCondition" : {
+            "Type" : "AWS::CloudFormation::WaitCondition",
+            "Properties" : {
+                "Handle" : { "Ref" : "RDSInitJrsDBWaitHandle" },
+                "Timeout" : "1800"
             }
         },
         "NotificationTopic": {
@@ -302,7 +309,8 @@
                         "Protocol": "email"
                     }
                 ]
-            }
+            },
+            "DependsOn" : "RDSInitWaitCondition"
         },
         "ELBSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
@@ -328,7 +336,7 @@
             }
         },
         "ElasticLoadBalancer": {
-            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
             "Properties": {
                 "Subnets": [
                     {
@@ -343,31 +351,46 @@
                         "Ref": "ELBSecurityGroup"
                     }
                 ],
-                "AppCookieStickinessPolicy": [
-                    {
-                        "CookieName": "JSESSIONID",
-                        "PolicyName": "WorkloadCookieStickinessPolicy"
-                    }
-                ],
-                "Listeners": [
-                    {
-                        "LoadBalancerPort": "80",
-                        "InstancePort": "80",
-                        "Protocol": "HTTP",
-                        "PolicyNames": [
-                            "WorkloadCookieStickinessPolicy"
-                        ]
-                    }
-                ],
-                "CrossZone": "true",
-                "HealthCheck": {
-                    "Target": {"Fn::Join" : [ "", [ "HTTP:", "80", "/jasperserver-pro/login.html" ] ]},
-                    "HealthyThreshold": "2",
-                    "UnhealthyThreshold": "10",
-                    "Interval": "90",
-                    "Timeout": "15"
-                }
+                "Type": "application"
+            },
+            "DependsOn" : "RDSInitWaitCondition"
+        },
+        "WorkloadELBListener" : {
+            "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties" : {
+                "DefaultActions" : [{
+                    "Type" : "forward",
+                    "TargetGroupArn" : { "Ref" : "WorkloadTargetGroup" }
+                }],
+                "LoadBalancerArn" : { "Ref" : "ElasticLoadBalancer" },
+                "Port" : "80",
+                "Protocol" : "HTTP"
             }
+        },
+        "WorkloadTargetGroup" :{
+            "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties" : {
+                "HealthCheckIntervalSeconds" : 90,
+                "HealthCheckPath" : "/jasperserver-pro/login.html",
+                "HealthCheckPort" : 80,
+                "HealthCheckProtocol" : "HTTP",
+                "HealthCheckTimeoutSeconds" : 15,
+                "HealthyThresholdCount" : 2,
+                "Matcher" : {
+                    "HttpCode" : "200"
+                },
+                "Port" : 80,
+                "Protocol" : "HTTP",
+                "TargetType" : "instance",
+                "UnhealthyThresholdCount" : 10,
+                "TargetGroupAttributes" : [
+                    { "Key" : "stickiness.enabled", "Value" : "true" },
+                    { "Key" : "stickiness.lb_cookie.duration_seconds", "Value" : "86400" },
+                    { "Key" : "stickiness.type", "Value" : "lb_cookie" }
+                ],
+                "VpcId" : { "Ref": "VPCID" }
+            },
+            "DependsOn" : "RDSInitWaitCondition"
         },
         "SetupRole": {
             "Type": "AWS::IAM::Role",
@@ -485,7 +508,8 @@
                         }
                     }
                 ]
-            }
+            },
+            "DependsOn" : "RDSInitWaitCondition"
         },
         "SetupRoleProfile": {
             "Type": "AWS::IAM::InstanceProfile",
@@ -500,6 +524,44 @@
         },
         "WorkloadInitializationInstance": {
             "Type": "AWS::EC2::Instance",
+            "Metadata": {
+                "AWS::CloudFormation::Init": {
+                    "configSets" : { "ConfigureAndInitialize" : ["Configure","Initialize"]},
+                    "Configure": {
+                        "files": {
+                            "/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/classes/repository.properties" : {
+                                "content" : { "Fn::Join" : ["", [
+                                    "dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                    "dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                    "dbHost=",{ "Ref": "RDSAddress" },"\n",
+                                    "dbPort=",{ "Ref": "RDSPort" },"\n",
+                                    "dbType=postgresql","\n",
+                                    ""
+                                ]]},
+                                "encoding" : "plain",
+                                "mode" : "000644",
+                                "owner" : "tomcat",
+                                "group" : "tomcat"
+                            }
+                        },
+                        "services" : {
+                            "tomcat8" : {
+                                "enaled" : "false",
+                                "ensureRunning" : "false"
+                            }
+                        }
+                    },
+                    "Initialize" : {
+                        "commands" : {
+                            "initRdsDB" : {
+                                "cwd" : "/usr/share/jrs_dist/jasperreports-server-bin/",
+                                "command" : "./deploy-database-to-external-repo.sh normal",
+                                "failOnError" : "true"
+                            }
+                        }
+                    }
+                }
+            },
             "Version": "2018-11-20",
             "Properties": {
                 "InstanceInitiatedShutdownBehavior" : "stop",
@@ -510,14 +572,24 @@
                 "DisableApiTermination": "false",
                 "SecurityGroupIds": [{ "Ref": "WorkloadSecurityGroup"}],
                 "SubnetId" : {"Ref": "PrivateSubnet1ID" },
-                "UserData" : {"Fn::Base64" : { "Fn::Join" : ["", [
-                    "dbUsername=",{ "Ref" : "RDSUser" },"\n",
-                    "dbPassword=",{ "Ref" : "RDSPassword" },"\n",
-                    "dbHost=",{ "Ref": "RDSAddress" },"\n",
-                    "dbPort=",{ "Ref": "RDSPort" },"\n",
-                    "dbType=postgresql","\n",
-                    { "Ref" : "RDSInitJrsDBWaitHandle" },"\n",
-                    "autodeployDb=normal","\n",
+                "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+                    "#!/bin/bash -xe\n",
+                    "yum update aws-cfn-bootstrap\n",
+
+                    "# Install the files and packages from the metadata\n",
+                    "/opt/aws/bin/cfn-init ",
+                    "         --stack ", { "Ref" : "AWS::StackName" },
+                    "         --resource WorkloadInitializationInstance ",
+                    "         --configsets ConfigureAndInitialize ",
+                    "         --region ", { "Ref" : "AWS::Region" }, "\n",
+
+                    "# Signal the status from cfn-init\n",
+                    "/opt/aws/bin/cfn-signal -e $? ",
+                    "         --data \"Application has completed DB configuration.\"",
+                    " ",{ "Fn::Base64" : { "Ref" : "RDSInitJrsDBWaitHandle"}},"\n",
+
+                    "# Shutdown instance\n",
+                    "/sbin/halt -p\n",
                     ""
                 ]]}}
             }
@@ -565,22 +637,89 @@
                 "FromPort" : "61616",
                 "ToPort" : "61616",
                 "SourceSecurityGroupId" : { "Fn::GetAtt": ["WorkloadSecurityGroup","GroupId"] }
-            }
+            },
+            "DependsOn" : "RDSInitWaitCondition"
         },
         "WorkloadASLaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
                 "AWS::CloudFormation::Init": {
-                    "configSets": {
-                        "quickstart": [
-                            "install",
-                            "configure",
-                            "cleanup"
-                        ]
+                    "configSets" : { "ConfigureAndRestart" : ["Configure" , "Restart"]
                     },
-                    "install": {},
-                    "configure": {},
-                    "cleanup": {}
+                    "Configure": {
+                        "files": {
+                            "/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/classes/repository.properties" : {
+                                "content" : {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "jasperserver_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/jasperserver","\n",
+                                            "jasperserver_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                            "jasperserver_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                            "jasperserver_driverClassName=org.postgresql.Driver","\n",
+                                            "sugarcrm_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/sugarcrm","\n",
+                                            "sugarcrm_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                            "sugarcrm_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                            "sugarcrm_driverClassName=org.postgresql.Driver","\n",
+                                            "foodmart_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/foodmart","\n",
+                                            "foodmart_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                            "foodmart_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                            "foodmart_driverClassName=org.postgresql.Driver","\n",
+                                            ""
+                                        ]
+                                    ]
+                                },
+                                "encoding" : "plain",
+                                "mode" : "000644",
+                                "owner" : "tomcat",
+                                "group" : "tomcat"
+                            },
+                            "/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/js.aws.properties" : {
+                                "content" : {
+                                    "Fn::Join": [
+                                        "", [
+                                            "js.aws.jms.queueName = ",{ "Fn::GetAtt" : [ "WorkloadSqsQueue", "QueueName" ]},"\n",
+                                            "js.aws.jms.endpoint = sqs.", { "Ref": "AWS::Region" },".amazonaws.com","\n",
+                                            ""
+                                        ]
+                                    ]
+                                },
+                                "encoding" : "plain",
+                                "mode" : "000644",
+                                "owner" : "tomcat",
+                                "group" : "tomcat"
+                            }
+
+                        },
+
+                        "commands" : {
+                            "enableCluster" :{
+                                "command" : "/bin/cp -fR /usr/share/jrs_dist/clusterConfig/* /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/",
+                                "ignoreErrors" : "false"
+                            },
+                            "pullCustomizations" : {
+                                "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "S3Bucket"},"/ /var/lib/tomcat8/ --recursive"]]},
+                                "ignoreErros" : "true"
+
+                            },
+                            "pullLicense" : {
+                                "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "S3Bucket"},"/jasperserver.license /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/jasperserver.license --recursive"]]},
+                                "ignoreErros" : "true"
+                            }
+                        }
+
+
+                    },
+                    "Restart" : {
+                        "services" : {
+                            "tomcat8" : {
+                                "enaled" : "true",
+                                "ensureRunning" : "true",
+                                "files" : ["/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/classes/repository.properties","/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/js.aws.properties"],
+                                "commands" : ["enableCluster","pullCustomizations","pullLicense"]
+                            }
+                        }
+                    }
                 }
             },
             "Properties": {
@@ -608,31 +747,17 @@
                         "Ref": "WorkloadSecurityGroup"
                     }
                 ],
-                "UserData": {
-                    "Fn::Base64": {
-                        "Fn::Join": [
-                            "",
-                            [
-                                "jasperserver_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/jasperserver","\n",
-                                "jasperserver_dbUsername=",{ "Ref" : "RDSUser" },"\n",
-                                "jasperserver_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
-                                "jasperserver_driverClassName=org.postgresql.Driver","\n",
-                                "sugarcrm_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/sugarcrm","\n",
-                                "sugarcrm_dbUsername=",{ "Ref" : "RDSUser" },"\n",
-                                "sugarcrm_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
-                                "sugarcrm_driverClassName=org.postgresql.Driver","\n",
-                                "foodmart_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/foodmart","\n",
-                                "foodmart_dbUsername=",{ "Ref" : "RDSUser" },"\n",
-                                "foodmart_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
-                                "foodmart_driverClassName=org.postgresql.Driver","\n",
-                                "clusterenabled=yes","\n",
-                                "queueName=",{ "Fn::GetAtt" : [ "WorkloadSqsQueue", "QueueName" ]},"\n",
-                                "s3bucket=",{ "Ref": "S3Bucket" },"\n",
-                                ""
-                            ]
-                        ]
-                    }
-                }
+                "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+                    "#!/bin/bash -xe\n",
+                    "yum install -y aws-cfn-bootstrap\n",
+
+                    "# Install the files and packages from the metadata\n",
+                    "/opt/aws/bin/cfn-init ",
+                    "         --stack ", { "Ref" : "AWS::StackName" },
+                    "         --resource WorkloadASLaunchConfig",
+                    "         --configsets ConfigureAndRestart",
+                    "         --region ", { "Ref" : "AWS::Region" }, "\n"
+                ]]}}
             }
         },
         "WorkloadScaleUpPolicy": {
@@ -729,11 +854,7 @@
                 "LaunchConfigurationName": {
                     "Ref": "WorkloadASLaunchConfig"
                 },
-                "LoadBalancerNames": [
-                    {
-                        "Ref": "ElasticLoadBalancer"
-                    }
-                ],
+                "TargetGroupARNs" : [{ "Ref" : "WorkloadTargetGroup"}],
                 "MaxSize": {
                     "Ref": "WorkloadNodesMaxSize"
                 },
@@ -759,7 +880,8 @@
                         "PropagateAtLaunch": "true"
                     }
                 ]
-            }
+            },
+            "DependsOn" : "RDSInitWaitCondition"
         },
         "WorkloadSqsQueue" : {
             "Type": "AWS::SQS::Queue",
@@ -768,10 +890,9 @@
                 "MessageRetentionPeriod": 3600,
                 "ReceiveMessageWaitTimeSeconds": 0,
                 "VisibilityTimeout": 1
-            }
+            },
+            "DependsOn" : "RDSInitWaitCondition"
         },
-
-                
         "S3Bucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
@@ -779,7 +900,8 @@
                     "Ref": "S3BucketName"
                 },
                 "AccessControl": "BucketOwnerFullControl"
-            }
+            },
+            "DependsOn" : "RDSInitWaitCondition"
         }
     },
     "Outputs": {
@@ -795,7 +917,7 @@
                 ]] },
             "Export": {
                 "Name": {
-                    "Fn::Sub": "${AWS::StackName}-ELBURL"
+                    "Fn::Sub": "${AWS::StackName}-URL"
                 }
             }
         }

@@ -342,7 +342,7 @@
             }
         },
 
-                
+
         "S3Bucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
@@ -361,7 +361,7 @@
                     { "Fn::GetAtt": [
                         "WorkloadInstance",
                         "PublicDnsName"
-                        ]
+                    ]
                     }
                 ]] },
             "Export": {

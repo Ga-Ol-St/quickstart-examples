@@ -36,23 +36,6 @@
                         "WorkloadNodesDesiredCapacity",
                         "OperatorEmail"
                     ]
-                },
-                {
-                    "Label": {
-                        "default": "Workload Storage Configuration"
-                    },
-                    "Parameters": [
-                        "S3BucketName"
-                    ]
-                },
-                {
-                    "Label": {
-                        "default": "AWS Quick Start Configuration"
-                    },
-                    "Parameters": [
-                        "QSS3BucketName",
-                        "QSS3KeyPrefix"
-                    ]
                 }
             ],
             "ParameterLabels": {
@@ -76,15 +59,6 @@
                 },
                 "PublicSubnet2ID": {
                     "default": "Public Subnet 2 ID"
-                },
-                "QSS3BucketName": {
-                    "default": "Quick Start S3 Bucket Name"
-                },
-                "QSS3KeyPrefix": {
-                    "default": "Quick Start S3 Key Prefix"
-                },
-                "S3BucketName": {
-                    "default": "S3 Bucket Name"
                 },
                 "VPCID": {
                     "default": "VPC ID"
@@ -135,45 +109,13 @@
             "Description": "ID of public subnet 2 in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e)",
             "Type": "AWS::EC2::Subnet::Id"
         },
-        "QSS3BucketName": {
-            "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
-            "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
-            "Default": "aws-quickstart",
-            "Description": "S3 bucket name for the Quick Start assets. This string can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
-            "Type": "String"
-        },
-        "QSS3KeyPrefix": {
-            "AllowedPattern": "^[0-9a-zA-Z-/]*$",
-            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
-            "Default": "quickstart-examples/",
-            "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
-            "Type": "String"
-        },
-        "S3BucketName": {
-            "AllowedPattern": "^[a-z0-9][a-z0-9-.]*$",
-            "Default": "type-unique-value-here-in-lowercase",
-            "Description": "Name of the S3 bucket that will be created for your workload to store data. Enter a unique name that does not include uppercase characters.",
-            "Type": "String"
-        },
         "VPCID": {
             "Description": "ID of your existing VPC for deployment",
             "Type": "AWS::EC2::VPC::Id"
         },
         "WorkloadInstanceType": {
             "AllowedValues": [
-                "m3.medium",
-                "m3.large",
-                "m3.xlarge",
-                "m4.large",
-                "m4.xlarge",
-                "m4.2xlarge",
-                "m4.4xlarge",
-                "m4.10xlarge",
-                "r3.xlarge",
-                "r3.2xlarge",
-                "c4.xlarge",
-                "r4.xlarge",
-                "r4.2xlarge"
+                "m3.medium","m3.large","m3.xlarge","m4.large","m4.xlarge","m4.2xlarge","m4.4xlarge","m4.10xlarge","r3.xlarge","r3.2xlarge","c4.xlarge","t2.medium","m5.large"
             ],
             "ConstraintDescription": "Must contain valid instance type",
             "Default": "m3.large",
@@ -897,11 +839,10 @@
         "S3Bucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
-                "BucketName": {
-                    "Ref": "S3BucketName"
-                },
+
                 "AccessControl": "BucketOwnerFullControl"
             },
+            "DeletionPolicy" : "Retain",
             "DependsOn" : "RDSInitWaitCondition"
         }
     },
@@ -919,6 +860,15 @@
             "Export": {
                 "Name": {
                     "Fn::Sub": "${AWS::StackName}-URL"
+                }
+            }
+        },
+        "S3CustomizationBucket" : {
+            "Value" : { "Ref": "S3Bucket" },
+            "Description" : "Template create S3 bucket where you can upload your license file \"jasperserver.license\" and customizations for product",
+            "Export" : {
+                "Name" : {
+                    "Fn::Sub": "${AWS::StackName}-S3bucket"
                 }
             }
         }

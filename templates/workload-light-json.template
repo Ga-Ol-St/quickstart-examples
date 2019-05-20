@@ -23,14 +23,6 @@
                         "BastionSecurityGroupID",
                         "WorkloadInstanceType"
                     ]
-                },
-                {
-                    "Label": {
-                        "default": "Workload Storage Configuration"
-                    },
-                    "Parameters": [
-                        "S3BucketName"
-                    ]
                 }
             ],
             "ParameterLabels": {
@@ -42,9 +34,6 @@
                 },
                 "PublicSubnet1ID": {
                     "default": "Public Subnet 1 ID"
-                },
-                "S3BucketName": {
-                    "default": "S3 Bucket Name"
                 },
                 "VPCID": {
                     "default": "VPC ID"
@@ -71,12 +60,6 @@
         "PublicSubnet2ID": {
             "Description": "ID of public subnet 2 in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e)",
             "Type": "AWS::EC2::Subnet::Id"
-        },
-        "S3BucketName": {
-            "AllowedPattern": "^[a-z0-9][a-z0-9-.]*$",
-            "Default": "type-unique-value-here-in-lowercase",
-            "Description": "Name of the S3 bucket that will be created for your workload to store data. Enter a unique name that does not include uppercase characters.",
-            "Type": "String"
         },
         "VPCID": {
             "Description": "ID of your existing VPC for deployment",
@@ -187,23 +170,6 @@
                 },
                 "Path": "/",
                 "Policies": [
-                    {
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Action": [
-                                        "s3:GetObject"
-                                    ],
-                                    "Resource": {
-                                        "Fn::Sub": "arn:aws:s3:::${QSS3BucketName}/${QSS3KeyPrefix}*"
-                                    },
-                                    "Effect": "Allow"
-                                }
-                            ]
-                        },
-                        "PolicyName": "aws-quick-start-s3-policy"
-                    },
                     {
                         "PolicyName": "WorkloadSetup",
                         "PolicyDocument": {
@@ -346,11 +312,10 @@
         "S3Bucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
-                "BucketName": {
-                    "Ref": "S3BucketName"
-                },
+
                 "AccessControl": "BucketOwnerFullControl"
-            }
+            },
+            "DeletionPolicy" : "Retain"
         }
     },
     "Outputs": {

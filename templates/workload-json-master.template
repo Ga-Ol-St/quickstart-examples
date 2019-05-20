@@ -560,7 +560,6 @@
             "Condition" : "ClusteredType"
         },
         "WorkloadStackSingleInstance": {
-            "DependsOn": "DatabaseStack",
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {

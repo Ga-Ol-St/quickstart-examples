@@ -211,7 +211,7 @@
     },
     "Mappings": {
         "AWSAMIRegionMap": {
-            "us-east-1"      : { "64" : "ami-00a70f3d63cb57856"},
+            "us-east-1"      : { "64" : "ami-0252ea35e8fa91821"},
             "us-east-2"      : { "64" : ""},
             "us-west-1"      : { "64" : ""},
             "us-west-2"      : { "64" : ""},

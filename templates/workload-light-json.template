@@ -132,21 +132,21 @@
     },
     "Mappings": {
         "AWSAMIRegionMap": {
-            "us-east-1"      : { "64" : "ami-0e7ffe8f6393fafb1"},
-            "us-east-2"      : { "64" : "ami-03842aab7c2c01de6"},
-            "us-west-1"      : { "64" : "ami-0c34e80dce6fe23be"},
-            "us-west-2"      : { "64" : "ami-07e264ac15b7ac7cd"},
-            "ca-central-1"   : { "64" : "ami-0e5922fa012b649a7"},
-            "eu-central-1"   : { "64" : "ami-09461fc7611c7e271"},
-            "eu-west-1"      : { "64" : "ami-0a612c145d00126f7"},
-            "eu-west-2"      : { "64" : "ami-00467413673167306"},
-            "eu-west-3"      : { "64" : "ami-035ecf23e72460388"},
-            "ap-southeast-1" : { "64" : "ami-047a7ba41020d15dd"},
-            "ap-southeast-2" : { "64" : "ami-0d55ebbc866c2b7bd"},
-            "ap-south-1"     : { "64" : "ami-047c44c6cde47d5d1"},
-            "ap-northeast-1" : { "64" : "ami-018407a3806368dd3"},
-            "ap-northeast-2" : { "64" : "ami-0af464bde93590a5d"},
-            "sa-east-1"      : { "64" : "ami-09f7a4f812d488ede"}
+            "us-east-1"      : { "64" : "ami-0252ea35e8fa91821"},
+            "us-east-2"      : { "64" : ""},
+            "us-west-1"      : { "64" : ""},
+            "us-west-2"      : { "64" : ""},
+            "ca-central-1"   : { "64" : ""},
+            "eu-central-1"   : { "64" : ""},
+            "eu-west-1"      : { "64" : ""},
+            "eu-west-2"      : { "64" : ""},
+            "eu-west-3"      : { "64" : ""},
+            "ap-southeast-1" : { "64" : ""},
+            "ap-southeast-2" : { "64" : ""},
+            "ap-south-1"     : { "64" : ""},
+            "ap-northeast-1" : { "64" : ""},
+            "ap-northeast-2" : { "64" : ""},
+            "sa-east-1"      : { "64" : ""}
         }
     },
     "Resources": {

@@ -138,22 +138,18 @@
         },
         "BastionInstanceType": {
             "AllowedValues": [
-                "m3.medium",
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
                 "m3.large",
                 "m3.xlarge",
                 "m3.2xlarge",
                 "m4.large",
                 "m4.xlarge",
                 "m4.2xlarge",
-                "m4.4xlarge",
-                "m4.10xlarge",
-                "r3.xlarge",
-                "r3.2xlarge",
-                "c4.xlarge",
-                "t2.medium",
-                "m5.large",
-                "r4.xlarge",
-                "r4.2xlarge"
+                "m4.4xlarge"
             ],
             "Default": "t2.micro",
             "Description": "Amazon EC2 instance type for the bastion instances",
@@ -250,7 +246,22 @@
         },
         "WorkloadInstanceType": {
             "AllowedValues": [
-                "m3.medium","m3.large","m3.xlarge","m4.large","m4.xlarge","m4.2xlarge","m4.4xlarge","m4.10xlarge","r3.xlarge","r3.2xlarge","c4.xlarge","t2.medium","m5.large"
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "c4.xlarge",
+                "t2.medium",
+                "m5.large",
+                "r4.xlarge",
+                "r4.2xlarge"
             ],
             "ConstraintDescription": "Must contain valid instance type",
             "Default": "m4.xlarge",

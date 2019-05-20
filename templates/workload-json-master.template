@@ -6,6 +6,15 @@
             "ParameterGroups": [
                 {
                     "Label": {
+                        "default": "Product Configuration"
+                    },
+                    "Parameters": [
+                        "Product",
+                        "DeploymentType"
+                    ]
+                },
+                {
+                    "Label": {
                         "default": "Network Configuration"
                     },
                     "Parameters": [
@@ -101,6 +110,12 @@
                 },
                 "WorkloadNodesMinSize": {
                     "default": "Workload Nodes Min Size"
+                },
+                "Product": {
+                    "default": "Product Type selection"
+                },
+                "DeploymentType": {
+                    "default": "Deployment type"
                 }
             }
         }
@@ -123,18 +138,22 @@
         },
         "BastionInstanceType": {
             "AllowedValues": [
-                "t2.nano",
-                "t2.micro",
-                "t2.small",
-                "t2.medium",
-                "t2.large",
+                "m3.medium",
                 "m3.large",
                 "m3.xlarge",
                 "m3.2xlarge",
                 "m4.large",
                 "m4.xlarge",
                 "m4.2xlarge",
-                "m4.4xlarge"
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "c4.xlarge",
+                "t2.medium",
+                "m5.large",
+                "r4.xlarge",
+                "r4.2xlarge"
             ],
             "Default": "t2.micro",
             "Description": "Amazon EC2 instance type for the bastion instances",
@@ -252,6 +271,60 @@
             "Default": "2",
             "Description": "The minimum size of the Auto Scaling group",
             "Type": "String"
+        },
+        "Product" : {
+            "AllowedValues": [
+                "Hourly-Professional",
+                "Hourly-Enterprise",
+                "BYOL"
+            ],
+            "Default": "BYOL",
+            "Description": "Product Type",
+            "Type": "String"
+
+        },
+        "DeploymentType" : {
+            "AllowedValues": [
+                "Single-Instance",
+                "Cluster"
+            ],
+            "Default": "Single-Instance",
+            "Description": "Product Type",
+            "Type": "String"
+
+        }
+    },
+    "Conditions" : {
+        "ClusteredType" : {"Fn::Equals" : [{"Ref" : "DeploymentType"}, "Cluster"]},
+        "SingleInstanceType" : {"Fn::Equals" : [{"Ref" : "DeploymentType"}, "Single-Instance"]}
+    },
+    "Rules" : {
+        "HourlyProffesionalRule" : {
+            "RuleCondition" : {"Fn::Equals":[{"Ref":"Product"}, "Hourly-Professional"]},
+            "Assertions" : [
+                {
+                    "Assert" :  { "Fn::Contains" : [ [ "m3.medium","m3.large","m3.xlarge","m4.large","m4.xlarge","m4.2xlarge","m4.4xlarge","m4.10xlarge","r3.xlarge","r3.2xlarge","c4.xlarge","t2.medium","m5.large"], {"Ref" : "WorkloadInstanceType"} ] },
+                    "AssertDescription" : "For the Hourly-Professional product,  the instance type is not correct, please select another one"
+                }
+            ]
+        },
+        "HourlyEnterpriceRule" : {
+            "RuleCondition" : {"Fn::Equals":[{"Ref":"Product"}, "Hourly-Enterprise"]},
+            "Assertions" : [
+                {
+                    "Assert" :  { "Fn::Contains" : [ [ "m3.medium","m3.large","m3.xlarge","m4.large","m4.xlarge","m4.2xlarge","m4.4xlarge","m4.10xlarge","r3.xlarge","r3.2xlarge","c4.xlarge","t2.medium","m5.large"], {"Ref" : "WorkloadInstanceType"} ] },
+                    "AssertDescription" : "For the Hourly-Enterprise product, the instance type is not correct, please select another one"
+                }
+            ]
+        },
+        "BYOLRule" : {
+            "RuleCondition" : {"Fn::Equals":[{"Ref":"Product"}, "BYOL"]},
+            "Assertions" : [
+                {
+                    "Assert" :  { "Fn::Contains" : [ [ "m3.medium","m3.large","m3.xlarge","m4.large","m4.xlarge","m4.2xlarge","m4.4xlarge","m4.10xlarge","r3.xlarge","r3.2xlarge","c4.xlarge","r4.xlarge","r4.2xlarge","t2.medium","m5.large"], {"Ref" : "WorkloadInstanceType"} ] },
+                    "AssertDescription" : "For the BYOL product, the instance type is not correct, please select another one"
+                }
+            ]
         }
     },
     "Resources": {
@@ -386,10 +459,11 @@
                         "Ref": "VPCCIDR"
                     }
                 }
-            }
+            },
+            "Condition" : "ClusteredType"
 
         },
-        "WorkloadStack": {
+        "WorkloadStackClustered": {
             "DependsOn": "DatabaseStack",
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
@@ -471,18 +545,72 @@
                     }
 
                 }
-            }
+            },
+            "Condition" : "ClusteredType"
+        },
+        "WorkloadStackSingleInstance": {
+            "DependsOn": "DatabaseStack",
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "TemplateURL": {
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/workload-light-json.template"
+                },
+                "Parameters": {
+                    "WorkloadInstanceType": {
+                        "Ref": "WorkloadInstanceType"
+                    },
+                    "BastionSecurityGroupID": {
+                        "Fn::GetAtt": [
+                            "BastionStack",
+                            "Outputs.BastionSecurityGroupID"
+                        ]
+                    },
+                    "KeyPairName": {
+                        "Ref": "KeyPairName"
+                    },
+                    "PublicSubnet1ID": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.PublicSubnet1ID"
+                        ]
+                    },
+                    "PublicSubnet2ID": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.PublicSubnet2ID"
+                        ]
+                    },
+                    "VPCID": {
+                        "Fn::GetAtt": [
+                            "VPCStack",
+                            "Outputs.VPCID"
+                        ]
+                    }
+                }
+            },
+            "Condition" : "SingleInstanceType"
         }
     },
     "Outputs": {
-      "ELBDNSName": {
+      "GettingStartedClusterURL": {
         "Description": "Jasperserver Getting started URL",
         "Value": {
           "Fn::GetAtt": [
-            "WorkloadStack",
+            "WorkloadStackClustered",
             "Outputs.ELBURL"
           ]
-        }
-      }
+        },
+        "Condition" : "ClusteredType"
+      },
+       "GettingStartedSinleInstanceURL": {
+           "Description": "Jasperserver Getting started URL",
+           "Value": {
+               "Fn::GetAtt": [
+                   "WorkloadStackSingleInstance",
+                   "Outputs.ELBURL"
+               ]
+           },
+           "Condition" : "SingleInstanceType"
+       }
     }
 }

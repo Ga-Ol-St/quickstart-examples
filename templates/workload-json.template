@@ -214,7 +214,7 @@
     },
     "Mappings": {
         "AWSAMIRegionMap": {
-            "us-east-1"      : { "64" : "ami-0252ea35e8fa91821"},
+            "us-east-1"      : { "64" : "ami-06be72c4521c3cdc8"},
             "us-east-2"      : { "64" : ""},
             "us-west-1"      : { "64" : ""},
             "us-west-2"      : { "64" : ""},
@@ -623,17 +623,16 @@
                         },
 
                         "commands" : {
-                            "enableCluster" :{
+                            "1-enableCluster" :{
                                 "command" : "/bin/cp -fR /usr/share/jrs_dist/clusterConfig/* /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/",
                                 "ignoreErrors" : "false"
                             },
-                            "pullCustomizations" : {
-                                "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "S3Bucket"},"/ /var/lib/tomcat8/ --recursive"]]},
+                            "2-pullLicense" : {
+                                "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "S3Bucket"},"/jasperserver.license /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/jasperserver.license"]]},
                                 "ignoreErros" : "true"
-
                             },
-                            "pullLicense" : {
-                                "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "S3Bucket"},"/jasperserver.license /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/jasperserver.license --recursive"]]},
+                            "3-pullCustomizations" : {
+                                "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "S3Bucket"},"/ /var/lib/tomcat8/ --recursive"]]},
                                 "ignoreErros" : "true"
                             }
                         }
@@ -646,7 +645,7 @@
                                 "enaled" : "true",
                                 "ensureRunning" : "true",
                                 "files" : ["/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/classes/repository.properties","/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/js.aws.properties"],
-                                "commands" : ["enableCluster","pullCustomizations","pullLicense"]
+                                "commands" : ["1-enableCluster","2-pullLicense","3-pullCustomizations"]
                             }
                         }
                     }
@@ -678,6 +677,25 @@
                     }
                 ],
                 "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+                    "Content-Type: multipart/mixed; boundary=\"//\"\n",
+                    "MIME-Version: 1.0\n",
+                    "\n",
+                    "--//\n",
+                    "Content-Type: text/cloud-config; charset=\"us-ascii\"\n",
+                    "MIME-Version: 1.0\n",
+                    "Content-Transfer-Encoding: 7bit\n",
+                    "Content-Disposition: attachment; filename=\"cloud-config.txt\"\n",
+                    "\n",
+                    "#cloud-config\n",
+                    "cloud_final_modules:\n",
+                    "- [scripts-user, always]\n",
+                    "\n",
+                    "--//\n",
+                    "Content-Type: text/x-shellscript; charset=\"us-ascii\"\n",
+                    "MIME-Version: 1.0\n",
+                    "Content-Transfer-Encoding: 7bit\n",
+                    "Content-Disposition: attachment; filename=\"userdata.txt\"\n",
+                    "\n",
                     "#!/bin/bash -xe\n",
                     "yum install -y aws-cfn-bootstrap\n",
 

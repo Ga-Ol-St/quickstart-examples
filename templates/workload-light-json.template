@@ -135,7 +135,7 @@
     },
     "Mappings": {
         "AWSAMIRegionMap": {
-            "us-east-1"      : { "64" : "ami-0252ea35e8fa91821"},
+            "us-east-1"      : { "64" : "ami-06be72c4521c3cdc8"},
             "us-east-2"      : { "64" : ""},
             "us-west-1"      : { "64" : ""},
             "us-west-2"      : { "64" : ""},
@@ -268,6 +268,53 @@
         "WorkloadInstance": {
             "Type": "AWS::EC2::Instance",
             "Version": "2018-11-20",
+            "Metadata": {
+              "AWS::CloudFormation::Init": {
+                "configSets" : { "ConfigureAndRestart" : ["Configure" , "Restart"]
+                },
+                "Configure": {
+                  "files": {
+                  },
+
+                  "commands" : {
+                    "1-setInitialPassword" : {
+                      "command" : { "Fn::Join" :[" ",["/usr/bin/java -cp /etc/jasperserver/*:/var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/lib/*:/usr/share/tomcat8/lib/*","com.jaspersoft.utils.DirectPasswordChanger jdbc:postgresql://127.0.0.1:5432/jasperserver","postgres","postgres","superuser","`/opt/aws/bin/ec2-metadata --instance-id | cut -d \" \" -f 2`"]]},
+                      "ignoreErrors" : "false",
+                      "test" : "test ! -e /etc/jasperserver/initializationMarker.log"
+                    },
+                    "2-disableAndExpireUsers" : {
+                      "command" : { "Fn::Join" :[" ",["env PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres jasperserver -c ", "\"update jiuser set enabled = false where username <> 'superuser';update jiuser set previouspasswordchangetime = (now() - interval '366 days')\""]]},
+                      "ignoreErrors" : "false",
+                      "test" : "test ! -e /etc/jasperserver/initializationMarker.log"
+                    },
+                    "3-pullLicense" : {
+                      "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "JRSS3Bucket"},"/jasperserver.license /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/jasperserver.license"]]},
+                      "ignoreErros" : "true"
+                    },
+                    "4-pullCustomizations" : {
+                      "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "JRSS3Bucket"},"/ /var/lib/tomcat8/ --recursive"]]},
+                      "ignoreErros" : "true"
+                    },
+                    "5-WriteInitializationMarker" : {
+                      "command" : {"Fn::Join" :["",["echo \"Initialization complete. Initialization commands will be blocked.\" > /etc/jasperserver/initializationMarker.log"]]},
+                      "ignoreErrors" : "true",
+                      "test" : "test ! -e /etc/jasperserver/initializationMarker.log"
+                    }
+                  }
+
+
+                },
+                "Restart" : {
+                  "services" : {
+                    "tomcat8" : {
+                      "enaled" : "true",
+                      "ensureRunning" : "true",
+                      "commands" : ["1-setInitialPassword","2-disableAndExpireUsers","3-pullLicense","4-pullCustomizations","5-WriteInitializationMarker"]
+                    }
+                  }
+                }
+              }
+            },
             "Properties": {
                 "InstanceInitiatedShutdownBehavior" : "stop",
                 "ImageId": {"Fn::FindInMap" : [ "AWSAMIRegionMap", { "Ref" : "AWS::Region" }, "64" ]},
@@ -276,7 +323,37 @@
                 "Monitoring": "false",
                 "DisableApiTermination": "false",
                 "SecurityGroupIds": [{ "Ref": "WorkloadSecurityGroup"}],
-                "SubnetId" : {"Ref": "PublicSubnet1ID" }
+                "SubnetId" : {"Ref": "PublicSubnet1ID" },
+                "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+                    "Content-Type: multipart/mixed; boundary=\"//\"\n",
+                    "MIME-Version: 1.0\n",
+                    "\n",
+                    "--//\n",
+                    "Content-Type: text/cloud-config; charset=\"us-ascii\"\n",
+                    "MIME-Version: 1.0\n",
+                    "Content-Transfer-Encoding: 7bit\n",
+                    "Content-Disposition: attachment; filename=\"cloud-config.txt\"\n",
+                    "\n",
+                    "#cloud-config\n",
+                    "cloud_final_modules:\n",
+                    "- [scripts-user, always]\n",
+                    "\n",
+                    "--//\n",
+                    "Content-Type: text/x-shellscript; charset=\"us-ascii\"\n",
+                    "MIME-Version: 1.0\n",
+                    "Content-Transfer-Encoding: 7bit\n",
+                    "Content-Disposition: attachment; filename=\"userdata.txt\"\n",
+                    "\n",
+                    "#!/bin/bash -xe\n",
+                    "yum install -y aws-cfn-bootstrap\n",
+
+                    "# Install the files and packages from the metadata\n",
+                    "/opt/aws/bin/cfn-init ",
+                    "         --stack ", { "Ref" : "AWS::StackName" },
+                    "         --resource JRSEC2Instance",
+                    "         --configsets ConfigureAndRestart",
+                    "         --region ", { "Ref" : "AWS::Region" }, "\n"
+                ]]}}
             }
         },
         "WorkloadSecurityGroup": {

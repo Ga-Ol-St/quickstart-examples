@@ -315,7 +315,7 @@
             "Type": "AWS::CloudFormation::Stack",
             "Properties": {
                 "TemplateURL": {
-                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/tibco-jrs-cluster-existing-infrastructure.template"
+                    "Fn::Sub": "https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/tibco-jrs-single-instance-existing-infrastructure.template.template"
                 },
                 "Parameters": {
                     "WorkloadInstanceType": {

@@ -511,6 +511,33 @@
             "Outputs.ELBURL"
           ]
         }
+      },
+      "S3CustomizationBucket": {
+        "Description" : "Template create S3 bucket where you can upload your license file \"jasperserver.license\" and customizations for product",
+        "Value": {
+          "Fn::GetAtt": [
+            "WorkloadStackClustered",
+            "Outputs.S3CustomizationBucket"
+          ]
+        }
+      },
+      "AutoscalingGroup" : {
+        "Description" : "JRS Autoscaling Group",
+        "Value": {
+          "Fn::GetAtt": [
+            "WorkloadStackClustered",
+            "Outputs.AutoscalingGroup"
+          ]
+        }
+
+      },
+      "Login" : {
+        "Value": "superuser",
+        "Description": "Master user name"
+      },
+      "Password" : {
+        "Value" :  "Same as provided password for database",
+        "Description" : "Initial master user password"
       }
     }
 }

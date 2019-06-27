@@ -337,6 +337,24 @@
                     "Fn::Sub": "${AWS::StackName}-URL"
                 }
             }
+        },
+        "S3CustomizationBucket" : {
+          "Value" : { "Ref": "S3Bucket" },
+          "Description" : "Template create S3 bucket where you can upload your license file \"jasperserver.license\" and customizations for product",
+          "Export" : {
+            "Name" : {
+              "Fn::Sub": "${AWS::StackName}-S3bucket"
+            }
+          }
+        },
+        "Login" : {
+          "Value": "superuser",
+          "Description": "Master user name"
+        },
+        "Password" : {
+          "Value" :  "Same as provided password for database",
+          "Description" : "Initial master user password"
         }
+
     }
 }

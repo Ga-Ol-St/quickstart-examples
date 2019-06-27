@@ -858,6 +858,23 @@
                     "Fn::Sub": "${AWS::StackName}-S3bucket"
                 }
             }
+        },
+        "AutoscalingGroup" : {
+            "Value": {"Ref": "WorkloadAutoScalingGroup"},
+            "Description" : "JRS Autoscaling Group",
+            "Export" : {
+                "Name" : {
+                    "Fn::Sub": "${AWS::StackName}-AutoscalingGroup"
+                }
+            }
+        },
+        "Login" : {
+            "Value": "superuser",
+            "Description": "Master user name"
+        },
+        "Password" : {
+            "Value" :  "Same as provided password for database",
+            "Description" : "Initial master user password"
         }
     }
 }

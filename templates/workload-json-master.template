@@ -57,6 +57,16 @@
                         "QSS3BucketName",
                         "QSS3KeyPrefix"
                     ]
+                },
+                {
+                    "Label": {
+                        "default": "Workload Database Configuration"
+                    },
+                    "Parameters": [
+                        "RDSDbSize",
+                        "RDSUser",
+                        "RDSPassword"
+                    ]
                 }
             ],
             "ParameterLabels": {

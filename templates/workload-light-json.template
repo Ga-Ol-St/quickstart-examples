@@ -35,6 +35,9 @@
                 "PublicSubnet1ID": {
                     "default": "Public Subnet 1 ID"
                 },
+                "PublicSubnet2ID": {
+                    "default": "Public Subnet 2 ID"
+                },
                 "VPCID": {
                     "default": "VPC ID"
                 },

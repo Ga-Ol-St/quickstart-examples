@@ -88,6 +88,23 @@
             "Default": "m3.large",
             "Description": "Type of EC2 instance for the Workload instances",
             "Type": "String"
+        },
+        "ExtBucket": {
+            "AllowedValues": [
+                "Yes",
+                "No"
+            ],
+            "ConstraintDescription": "The value should be Yes/No.",
+            "Default": "No",
+            "Description": "Do you want to create a new S3 bucket? You can upload third-party drivers, OSGI bundles, certificates, plugins etc. in this bucket to extend the base image later.",
+            "Type": "String"
+        },
+        "S3BucketName": {
+            "Description" : "You can create a new S3 bucket or use existing for extending default application configuration. Enter a unique name that does not include uppercase characters.",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64"
+
         }
 
 
@@ -130,6 +147,16 @@
                     },
                     "AssertDescription": "All subnets must in the VPC"
                 }
+            ]
+        }
+    },
+    "Conditions" : {
+        "CreateS3Bucket": {
+            "Fn::Equals": [
+                {
+                    "Ref": "ExtBucket"
+                },
+                "Yes"
             ]
         }
     },
@@ -198,7 +225,12 @@
                                                 [
                                                     "arn:aws:s3:::",
                                                     {
-                                                        "Ref": "S3Bucket"
+                                                        "Fn::If": [
+                                                            "CreateS3Bucket",
+                                                            {"Ref": "S3Bucket"},
+                                                            {"Ref": "S3BucketName"}
+                                                        ]
+
                                                     },
                                                     ""
                                                 ]
@@ -210,7 +242,12 @@
                                                 [
                                                     "arn:aws:s3:::",
                                                     {
-                                                        "Ref": "S3Bucket"
+                                                        "Fn::If": [
+                                                            "CreateS3Bucket",
+                                                            {"Ref": "S3Bucket"},
+                                                            {"Ref": "S3BucketName"}
+                                                        ]
+
                                                     },
                                                     "/*"
                                                 ]
@@ -288,11 +325,11 @@
                       "test" : "test ! -e /etc/jasperserver/initializationMarker.log"
                     },
                     "3-pullLicense" : {
-                      "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "JRSS3Bucket"},"/jasperserver.license /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/jasperserver.license"]]},
+                      "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Fn::If": ["CreateS3Bucket",{"Ref": "S3Bucket"},{"Ref": "S3BucketName"}]},"/jasperserver.license /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/jasperserver.license"]]},
                       "ignoreErros" : "true"
                     },
                     "4-pullCustomizations" : {
-                      "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Ref" : "JRSS3Bucket"},"/ /var/lib/tomcat8/ --recursive"]]},
+                      "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Fn::If": ["CreateS3Bucket",{"Ref": "S3Bucket"},{"Ref": "S3BucketName"}]},"/ /var/lib/tomcat8/ --recursive"]]},
                       "ignoreErros" : "true"
                     },
                     "5-WriteInitializationMarker" : {
@@ -392,7 +429,7 @@
         "S3Bucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
-
+                "BucketName" : { "Ref": "S3BucketName" },
                 "AccessControl": "BucketOwnerFullControl"
             },
             "DeletionPolicy" : "Retain"
@@ -416,7 +453,7 @@
             }
         },
         "S3CustomizationBucket" : {
-          "Value" : { "Ref": "S3Bucket" },
+          "Value" : {"Fn::If": ["CreateS3Bucket",{"Ref": "S3Bucket"},{"Ref": "S3BucketName"}]},
           "Description" : "Template create S3 bucket where you can upload your license file \"jasperserver.license\" and customizations for product",
           "Export" : {
             "Name" : {

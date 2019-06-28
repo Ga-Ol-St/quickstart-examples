@@ -10,8 +10,7 @@
                     },
                     "Parameters": [
                         "VPCID",
-                        "PublicSubnet1ID",
-                        "PublicSubnet2ID"
+                        "PublicSubnet1ID"
                     ]
                 },
                 {
@@ -35,9 +34,6 @@
                 "PublicSubnet1ID": {
                     "default": "Public Subnet 1 ID"
                 },
-                "PublicSubnet2ID": {
-                    "default": "Public Subnet 2 ID"
-                },
                 "VPCID": {
                     "default": "VPC ID"
                 },
@@ -58,10 +54,6 @@
         },
         "PublicSubnet1ID": {
             "Description": "ID of public subnet 1 in Availability Zone 1 for the ELB load balancer (e.g., subnet-9bc642ac)",
-            "Type": "AWS::EC2::Subnet::Id"
-        },
-        "PublicSubnet2ID": {
-            "Description": "ID of public subnet 2 in Availability Zone 2 for the ELB load balancer (e.g., subnet-e3246d8e)",
             "Type": "AWS::EC2::Subnet::Id"
         },
         "VPCID": {

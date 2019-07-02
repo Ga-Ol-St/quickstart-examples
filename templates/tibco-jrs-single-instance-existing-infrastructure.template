@@ -351,6 +351,7 @@
             "Properties": {
                 "InstanceInitiatedShutdownBehavior" : "stop",
                 "ImageId": {"Fn::FindInMap" : [ "AWSAMIRegionMap", { "Ref" : "AWS::Region" }, "64" ]},
+                "IamInstanceProfile": { "Ref": "SetupRoleProfile" },
                 "InstanceType": { "Ref" : "WorkloadInstanceType" },
                 "KeyName" : { "Ref" : "KeyPairName" },
                 "Monitoring": "false",
@@ -383,7 +384,7 @@
                     "# Install the files and packages from the metadata\n",
                     "/opt/aws/bin/cfn-init ",
                     "         --stack ", { "Ref" : "AWS::StackName" },
-                    "         --resource JRSEC2Instance",
+                    "         --resource WorkloadInstance",
                     "         --configsets ConfigureAndRestart",
                     "         --region ", { "Ref" : "AWS::Region" }, "\n"
                 ]]}}
@@ -463,7 +464,7 @@
           "Description": "Master user name"
         },
         "Password" : {
-          "Value" :  "Same as provided password for database",
+          "Value" :  { "Ref" : "WorkloadInstance" },
           "Description" : "Initial master user password"
         }
 

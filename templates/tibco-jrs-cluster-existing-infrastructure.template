@@ -661,7 +661,7 @@
                                             "jasperserver_dbUsername=",{ "Ref" : "RDSUser" },"\n",
                                             "jasperserver_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
                                             "jasperserver_driverClassName=org.postgresql.Driver","\n",
-                                            {"Fn::If": ["IncludeSamplesCondition",[
+                                            {"Fn::If": ["IncludeSamplesCondition",{"Fn::Join": ["",[
                                                 "sugarcrm_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/sugarcrm","\n",
                                                 "sugarcrm_dbUsername=",{ "Ref" : "RDSUser" },"\n",
                                                 "sugarcrm_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
@@ -669,8 +669,8 @@
                                                 "foodmart_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/foodmart","\n",
                                                 "foodmart_dbUsername=",{ "Ref" : "RDSUser" },"\n",
                                                 "foodmart_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
-                                                "foodmart_driverClassName=org.postgresql.Driver","\n",
-                                             ],""]},
+                                                "foodmart_driverClassName=org.postgresql.Driver","\n"
+                                             ]]},""]},
                                             ""
                                         ]
                                     ]

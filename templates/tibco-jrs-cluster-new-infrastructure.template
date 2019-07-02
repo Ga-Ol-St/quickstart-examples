@@ -520,12 +520,12 @@
 
     },
     "Outputs": {
-      "GettingStartedClusterURL": {
+      "GettingStartedPublicURL": {
         "Description": "Jasperserver Getting started URL",
         "Value": {
           "Fn::GetAtt": [
             "WorkloadStackClustered",
-            "Outputs.ELBURL"
+            "Outputs.GettingStartedPublicURL"
           ]
         }
       },

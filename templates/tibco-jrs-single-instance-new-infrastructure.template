@@ -358,12 +358,12 @@
         }
     },
     "Outputs": {
-      "ELBDNSName": {
+      "GettingStartedPublicURL": {
         "Description": "Jasperserver Getting started URL",
         "Value": {
           "Fn::GetAtt": [
             "WorkloadStack",
-            "Outputs.ELBURL"
+            "Outputs.GettingStartedPublicURL"
           ]
         }
       },

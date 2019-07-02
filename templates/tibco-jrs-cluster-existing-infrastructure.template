@@ -899,7 +899,7 @@
         }
     },
     "Outputs": {
-        "ELBURL": {
+        "GettingStartedPublicURL": {
             "Description": "Wokload Getting Started URL",
             "Value": {
                 "Fn::Join" : ["", ["http://",

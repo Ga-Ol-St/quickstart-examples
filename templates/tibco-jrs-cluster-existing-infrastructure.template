@@ -38,6 +38,17 @@
                         "S3BucketName",
                         "ExtBucket"
                     ]
+                },
+                {
+                    "Label": {
+                        "default": "Workload Database Configuration"
+                    },
+                    "Parameters": [
+                        "RDSAddress",
+                        "RDSPort",
+                        "RDSUser",
+                        "RDSPassword"
+                    ]
                 }
             ],
             "ParameterLabels": {

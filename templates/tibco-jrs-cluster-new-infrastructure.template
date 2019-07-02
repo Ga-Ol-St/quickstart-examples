@@ -46,15 +46,6 @@
                 },
                 {
                     "Label": {
-                        "default": "AWS Quick Start Configuration"
-                    },
-                    "Parameters": [
-                        "QSS3BucketName",
-                        "QSS3KeyPrefix"
-                    ]
-                },
-                {
-                    "Label": {
                         "default": "Workload Database Configuration"
                     },
                     "Parameters": [
@@ -62,7 +53,17 @@
                         "RDSUser",
                         "RDSPassword"
                     ]
+                },
+                {
+                    "Label": {
+                        "default": "AWS Quick Start Configuration"
+                    },
+                    "Parameters": [
+                        "QSS3BucketName",
+                        "QSS3KeyPrefix"
+                    ]
                 }
+
             ],
             "ParameterLabels": {
                 "AvailabilityZones": {

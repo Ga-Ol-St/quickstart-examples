@@ -35,8 +35,8 @@
                         "WorkloadNodesMaxSize",
                         "WorkloadNodesDesiredCapacity",
                         "OperatorEmail",
-                        "S3BucketName",
-                        "NewBucket"
+                        "NewBucket",
+                        "S3BucketName"
                     ]
                 },
                 {

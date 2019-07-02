@@ -36,7 +36,7 @@
                         "WorkloadNodesDesiredCapacity",
                         "OperatorEmail",
                         "S3BucketName",
-                        "ExtBucket"
+                        "NewBucket"
                     ]
                 },
                 {
@@ -88,7 +88,7 @@
                 "WorkloadNodesMinSize": {
                     "default": "Workload Nodes Min Size"
                 },
-                "ExtBucket" : {
+                "NewBucket" : {
                     "default" : "Create S3 Bucket for License and Customization?"
                 },
                 "S3BucketName": {
@@ -184,7 +184,7 @@
             "Description" : "RDS Port",
             "Type" : "Number"
         },
-        "ExtBucket": {
+        "NewBucket": {
             "AllowedValues": [
                 "Yes",
                 "No"
@@ -251,7 +251,7 @@
         "CreateS3Bucket": {
             "Fn::Equals": [
                 {
-                    "Ref": "ExtBucket"
+                    "Ref": "NewBucket"
                 },
                 "Yes"
             ]

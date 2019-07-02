@@ -28,7 +28,7 @@
                         "default": "Workload Storage Configuration"
                     },
                     "Parameters": [
-                        "ExtBucket",
+                        "NewBucket",
                         "S3BucketName"
                     ]
                 }
@@ -49,7 +49,7 @@
                 "WorkloadInstanceType": {
                     "default": "Workload Servers Instance Type"
                 },
-                "ExtBucket" : {
+                "NewBucket" : {
                     "default" : "Create S3 Bucket for License and Customization?"
                 },
                 "S3BucketName": {
@@ -84,7 +84,7 @@
             "Description": "Type of EC2 instance for the Workload instances",
             "Type": "String"
         },
-        "ExtBucket": {
+        "NewBucket": {
             "AllowedValues": [
                 "Yes",
                 "No"
@@ -150,7 +150,7 @@
         "CreateS3Bucket": {
             "Fn::Equals": [
                 {
-                    "Ref": "ExtBucket"
+                    "Ref": "NewBucket"
                 },
                 "Yes"
             ]

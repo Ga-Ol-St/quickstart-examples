@@ -43,7 +43,7 @@
                         "default": "Workload Storage Configuration"
                     },
                     "Parameters": [
-                        "ExtBucket",
+                        "NewBucket",
                         "S3BucketName"
                     ]
                 },
@@ -98,7 +98,7 @@
                 "WorkloadInstanceType": {
                     "default": "Workload Servers Instance Type"
                 },
-                "ExtBucket" : {
+                "NewBucket" : {
                     "default" : "Create S3 Bucket for License and Customization?"
                 },
                 "S3BucketName": {
@@ -210,7 +210,7 @@
             "Description": "EC2 instance type for the Workload instances",
             "Type": "String"
         },
-        "ExtBucket": {
+        "NewBucket": {
             "AllowedValues": [
                 "Yes",
                 "No"
@@ -340,8 +340,8 @@
                             "Outputs.PublicSubnet1ID"
                         ]
                     },
-                    "ExtBucket": {
-                        "Ref": "ExtBucket"
+                    "NewBucket": {
+                        "Ref": "NewBucket"
                     },
                     "S3BucketName" : {
                         "Ref": "S3BucketName"

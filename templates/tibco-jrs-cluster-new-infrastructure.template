@@ -39,7 +39,7 @@
                         "WorkloadNodesDesiredCapacity",
                         "WorkloadNodesMaxSize",
                         "OperatorEmail",
-                        "ExtBucket",
+                        "NewBucket",
                         "S3BucketName"
 
                     ]
@@ -117,7 +117,7 @@
                 "WorkloadNodesMinSize": {
                     "default": "Workload Nodes Min Size"
                 },
-                "ExtBucket" : {
+                "NewBucket" : {
                     "default" : "Create S3 Bucket for License and Customization?"
                 },
                 "S3BucketName": {
@@ -274,7 +274,7 @@
             "Description": "The minimum size of the Auto Scaling group",
             "Type": "String"
         },
-        "ExtBucket": {
+        "NewBucket": {
             "AllowedValues": [
                 "Yes",
                 "No"
@@ -508,8 +508,8 @@
                             "Outputs.Port"
                         ]
                     },
-                    "ExtBucket": {
-                        "Ref": "ExtBucket"
+                    "NewBucket": {
+                        "Ref": "NewBucket"
                     },
                     "S3BucketName" : {
                         "Ref": "S3BucketName"

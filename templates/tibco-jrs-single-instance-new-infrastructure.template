@@ -380,9 +380,14 @@
         "Value": "superuser",
         "Description": "Master user name"
       },
-      "Password" : {
-        "Value" :  "Same as provided password for database",
-        "Description" : "Initial master user password"
-      }
+        "Password" : {
+            "Value": {
+                "Fn::GetAtt": [
+                    "WorkloadStack",
+                    "Outputs.Password"
+                ]
+            },
+            "Description" : "Initial master user password"
+        }
     }
 }

@@ -465,7 +465,12 @@
         },
         "Password" : {
           "Value" :  { "Ref" : "WorkloadInstance" },
-          "Description" : "Initial master user password"
+          "Description" : "Initial master user password",
+          "Export" : {
+            "Name" : {
+              "Fn::Sub": "${AWS::StackName}-InitPassword"
+            }
+          }
         }
 
     }

@@ -22,6 +22,15 @@
                         "BastionSecurityGroupID",
                         "WorkloadInstanceType"
                     ]
+                },
+                {
+                    "Label": {
+                        "default": "Workload Storage Configuration"
+                    },
+                    "Parameters": [
+                        "ExtBucket",
+                        "S3BucketName"
+                    ]
                 }
             ],
             "ParameterLabels": {
@@ -39,6 +48,12 @@
                 },
                 "WorkloadInstanceType": {
                     "default": "Workload Servers Instance Type"
+                },
+                "ExtBucket" : {
+                    "default" : "Create S3 Bucket for License and Customization?"
+                },
+                "S3BucketName": {
+                    "default" : "S3 Bucket for License and Customization"
                 }
             }
         }
@@ -82,6 +97,7 @@
         "S3BucketName": {
             "Description" : "You can create a new S3 bucket or use existing for extending default application configuration. Enter a unique name that does not include uppercase characters.",
             "Type" : "String",
+            "Default" : "new-bucket-for-license-and-customization",
             "MinLength": "1",
             "MaxLength": "64"
 

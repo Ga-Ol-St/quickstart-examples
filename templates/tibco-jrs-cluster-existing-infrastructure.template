@@ -521,6 +521,7 @@
                                     "dbHost=",{ "Ref": "RDSAddress" },"\n",
                                     "dbPort=",{ "Ref": "RDSPort" },"\n",
                                     "dbType=postgresql","\n",
+                                    "js.dbName=jasperserver","\n",
                                     ""
                                 ]]},
                                 "encoding" : "plain",

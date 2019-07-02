@@ -47,7 +47,9 @@
                         "RDSAddress",
                         "RDSPort",
                         "RDSUser",
-                        "RDSPassword"
+                        "RDSPassword",
+                        "DBName",
+                        "IncludeSamples"
                     ]
                 }
             ],
@@ -93,6 +95,9 @@
                 },
                 "S3BucketName": {
                     "default" : "S3 Bucket for License and Customization"
+                },
+                "IncludeSamples": {
+                    "default" : "Incude samples"
                 }
             }
         }
@@ -184,6 +189,25 @@
             "Description" : "RDS Port",
             "Type" : "Number"
         },
+        "DBName" : {
+            "Description" : "Database name which will be used for repository creation",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "Default": "jasperserver",
+            "AllowedPattern" : "[-_a-zA-Z0-9]*",
+            "ConstraintDescription" : "It can contain only alphanumeric characters and underscores."
+        },
+        "IncludeSamples" : {
+            "AllowedValues": [
+                "Yes",
+                "No"
+            ],
+            "ConstraintDescription": "The value should be Yes/No.",
+            "Default": "Yes",
+            "Description": "Include samples in repository or not",
+            "Type": "String"
+        },
         "NewBucket": {
             "AllowedValues": [
                 "Yes",
@@ -248,14 +272,8 @@
     },
     "Conditions" : {
         "NotificationsEnabled" : {"Fn::Not" : [{"Fn::Equals": [{"Ref" : "OperatorEmail"}, ""]}]},
-        "CreateS3Bucket": {
-            "Fn::Equals": [
-                {
-                    "Ref": "NewBucket"
-                },
-                "Yes"
-            ]
-        }
+        "IncludeSamplesCondition": {"Fn::Equals": [{"Ref": "IncludeSamples"},"Yes"]},
+        "CreateS3Bucket": {"Fn::Equals": [{"Ref": "NewBucket"},"Yes"]}
     },
     "Mappings": {
         "AWSAMIRegionMap": {
@@ -521,7 +539,7 @@
                                     "dbHost=",{ "Ref": "RDSAddress" },"\n",
                                     "dbPort=",{ "Ref": "RDSPort" },"\n",
                                     "dbType=postgresql","\n",
-                                    "js.dbName=jasperserver","\n",
+                                    "js.dbName=",{ "Ref" : "DBName" },"\n",
                                     ""
                                 ]]},
                                 "encoding" : "plain",
@@ -541,7 +559,7 @@
                         "commands" : {
                             "initRdsDB" : {
                                 "cwd" : "/usr/share/jrs_dist/jasperreports-server-bin/",
-                                "command" : "./deploy-database-to-external-repo.sh normal",
+                                "command" : { "Fn::Join" : [" ", ["./deploy-database-to-external-repo.sh",{"Fn::If": ["IncludeSamplesCondition","normal","minimal"]}]]},
                                 "failOnError" : "true"
                             }
                         }
@@ -639,18 +657,20 @@
                                     "Fn::Join": [
                                         "",
                                         [
-                                            "jasperserver_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/jasperserver","\n",
+                                            "jasperserver_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },{ "Ref" : "DBName" },"\n",
                                             "jasperserver_dbUsername=",{ "Ref" : "RDSUser" },"\n",
                                             "jasperserver_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
                                             "jasperserver_driverClassName=org.postgresql.Driver","\n",
-                                            "sugarcrm_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/sugarcrm","\n",
-                                            "sugarcrm_dbUsername=",{ "Ref" : "RDSUser" },"\n",
-                                            "sugarcrm_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
-                                            "sugarcrm_driverClassName=org.postgresql.Driver","\n",
-                                            "foodmart_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/foodmart","\n",
-                                            "foodmart_dbUsername=",{ "Ref" : "RDSUser" },"\n",
-                                            "foodmart_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
-                                            "foodmart_driverClassName=org.postgresql.Driver","\n",
+                                            {"Fn::If": ["IncludeSamplesCondition",[
+                                                "sugarcrm_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/sugarcrm","\n",
+                                                "sugarcrm_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                                "sugarcrm_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                                "sugarcrm_driverClassName=org.postgresql.Driver","\n",
+                                                "foodmart_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/foodmart","\n",
+                                                "foodmart_dbUsername=",{ "Ref" : "RDSUser" },"\n",
+                                                "foodmart_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
+                                                "foodmart_driverClassName=org.postgresql.Driver","\n",
+                                             ],""]},
                                             ""
                                         ]
                                     ]

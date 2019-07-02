@@ -508,6 +508,8 @@
                             "Outputs.Port"
                         ]
                     },
+                    "DBName" : "jasperserver",
+                    "IncludeSamples" : "Yes",
                     "NewBucket": {
                         "Ref": "NewBucket"
                     },

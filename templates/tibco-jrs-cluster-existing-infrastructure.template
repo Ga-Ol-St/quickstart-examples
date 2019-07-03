@@ -657,7 +657,7 @@
                                     "Fn::Join": [
                                         "",
                                         [
-                                            "jasperserver_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },{ "Ref" : "DBName" },"\n",
+                                            "jasperserver_url=jdbc:postgresql://",{ "Ref": "RDSAddress" },":",{ "Ref": "RDSPort" },"/",{ "Ref" : "DBName" },"\n",
                                             "jasperserver_dbUsername=",{ "Ref" : "RDSUser" },"\n",
                                             "jasperserver_dbPassword=",{ "Ref" : "RDSPassword" },"\n",
                                             "jasperserver_driverClassName=org.postgresql.Driver","\n",

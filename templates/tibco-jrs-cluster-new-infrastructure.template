@@ -51,7 +51,9 @@
                     "Parameters": [
                         "RDSDbSize",
                         "RDSUser",
-                        "RDSPassword"
+                        "RDSPassword",
+                        "DBName",
+                        "IncludeSamples"
                     ]
                 },
                 {
@@ -122,7 +124,11 @@
                 },
                 "S3BucketName": {
                     "default" : "S3 Bucket for License and Customization"
+                },
+                "IncludeSamples": {
+                    "default" : "Include samples"
                 }
+
             }
         }
     },
@@ -290,6 +296,25 @@
             "Default" : "new-bucket-for-license-and-customization",
             "MinLength": "1",
             "MaxLength": "64"
+        },
+        "DBName" : {
+            "Description" : "Database name which will be used for repository creation",
+            "Type" : "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "Default": "jasperserver",
+            "AllowedPattern" : "[-_a-zA-Z0-9]*",
+            "ConstraintDescription" : "It can contain only alphanumeric characters and underscores."
+        },
+        "IncludeSamples" : {
+            "AllowedValues": [
+                "Yes",
+                "No"
+            ],
+            "ConstraintDescription": "The value should be Yes/No.",
+            "Default": "Yes",
+            "Description": "Include samples in repository or not",
+            "Type": "String"
         }
 
     },
@@ -508,8 +533,8 @@
                             "Outputs.Port"
                         ]
                     },
-                    "DBName" : "jasperserver",
-                    "IncludeSamples" : "Yes",
+                    "DBName" : { "Ref": "DBName" },
+                    "IncludeSamples" : { "Ref": "IncludeSamples" },
                     "NewBucket": {
                         "Ref": "NewBucket"
                     },

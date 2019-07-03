@@ -705,11 +705,11 @@
                             },
                             "2-pullLicense" : {
                                 "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Fn::If": ["CreateS3Bucket",{"Ref": "S3Bucket"},{"Ref": "S3BucketName"}]},"/jasperserver.license /var/lib/tomcat8/webapps/jasperserver-pro/WEB-INF/jasperserver.license"]]},
-                                "ignoreErros" : "true"
+                                "ignoreErrors" : "true"
                             },
                             "3-pullCustomizations" : {
                                 "command" : { "Fn::Join" : ["", ["/usr/bin/aws --region ",{ "Ref": "AWS::Region" }," s3 cp s3://",{"Fn::If": ["CreateS3Bucket",{"Ref": "S3Bucket"},{"Ref": "S3BucketName"}]},"/ /var/lib/tomcat8/ --recursive"]]},
-                                "ignoreErros" : "true"
+                                "ignoreErrors" : "true"
                             }
                         }
 

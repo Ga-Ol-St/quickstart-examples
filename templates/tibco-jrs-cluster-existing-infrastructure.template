@@ -97,7 +97,7 @@
                     "default" : "S3 Bucket for License and Customization"
                 },
                 "IncludeSamples": {
-                    "default" : "Incude samples"
+                    "default" : "Include samples"
                 }
             }
         }

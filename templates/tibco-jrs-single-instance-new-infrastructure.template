@@ -110,7 +110,10 @@
     "Parameters": {
         "AvailabilityZones": {
             "Description": "List of Availability Zones to use for the subnets in the VPC. Only two Availability Zones are used for this deployment, and the logical order of your selections is preserved.",
-            "Type": "List<AWS::EC2::AvailabilityZone::Name>"
+            "Type": "List<AWS::EC2::AvailabilityZone::Name>",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "ConstraintDescription" : "Parameter value is Required"
         },
         "BastionAMIOS": {
             "AllowedValues": [
@@ -144,7 +147,10 @@
         },
         "KeyPairName": {
             "Description": "The name of an existing public/private key pair, which allows you to securely connect to your instance after it launches",
-            "Type": "AWS::EC2::KeyPair::KeyName"
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "ConstraintDescription" : "Parameter value is Required"
         },
         "PrivateSubnet1CIDR": {
             "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",

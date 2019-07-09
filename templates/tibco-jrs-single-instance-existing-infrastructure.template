@@ -38,7 +38,7 @@
                     "default": "Bastion Security Group ID"
                 },
                 "KeyPairName": {
-                    "default": "SSH Key Name"
+                    "default": "Key Pair Name"
                 },
                 "PublicSubnet1ID": {
                     "default": "Public Subnet 1 ID"

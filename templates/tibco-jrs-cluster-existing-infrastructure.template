@@ -58,7 +58,7 @@
                     "default": "Bastion Security Group ID"
                 },
                 "KeyPairName": {
-                    "default": "SSH Key Name"
+                    "default": "Key Pair Name"
                 },
                 "OperatorEmail": {
                     "default": "Operator Email"

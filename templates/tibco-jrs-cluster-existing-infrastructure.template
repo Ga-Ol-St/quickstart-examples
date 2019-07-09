@@ -142,7 +142,7 @@
                "m4.large","m4.xlarge","m4.2xlarge","m4.4xlarge","m4.10xlarge","r3.xlarge","r3.2xlarge","c4.xlarge","t2.medium","m5.large"
             ],
             "ConstraintDescription": "Must contain valid instance type",
-            "Default": "m4.large",
+            "Default": "t2.medium",
             "Description": "Type of EC2 instance for the Workload instances",
             "Type": "String"
         },

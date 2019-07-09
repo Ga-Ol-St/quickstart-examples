@@ -435,7 +435,7 @@
     },
     "Outputs": {
         "GettingStartedPublicURL": {
-            "Description": "Wokload Getting Started URL",
+            "Description": "Workload Getting Started URL",
             "Value": {
                 "Fn::Join" : ["", ["http://",
                     { "Fn::GetAtt": [

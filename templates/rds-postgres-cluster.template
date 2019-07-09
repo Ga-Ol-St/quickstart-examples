@@ -13,9 +13,9 @@
         "RDSDbSize": {
             "Description" : "Must be one of the following valid RDS instance types (db.m3.medium | db.m3.large | db.m3.xlarge).",
             "Type" : "String",
-            "Default" : "db.m3.medium",
-            "AllowedValues" : [ "db.m3.medium","db.m3.large","db.m3.xlarge"],
-            "ConstraintDescription" : "Must be one of the following valid RDS instance types (db.m3.medium | db.m3.large | db.m3.xlarge)."
+            "Default" : "db.m4.large",
+            "AllowedValues" : [ "db.t2.small","db.t2.medium","db.t2.large","db.m4.large","db.m4.xlarge","db.m4.2xlarge"],
+            "ConstraintDescription" : "Must be one of the following valid RDS instance types ( db.t2.small | db.t2.medium | db.t2.large | db.m4.large | db.m4.xlarge | db.m4.2xlarge)."
         },
         "RDSUser" : {
             "Description" : "Master User Name for RDS database",

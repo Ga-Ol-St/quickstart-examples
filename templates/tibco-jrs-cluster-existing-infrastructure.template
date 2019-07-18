@@ -225,7 +225,7 @@
             "ConstraintDescription" : "Port number should be higher than 1024"
         },
         "DBName" : {
-            "Description" : "Database name which will be used for repository creation",
+            "Description" : "New Database name which will be used for repository creation. Enter a unique database name.",
             "Type" : "String",
             "MinLength": "1",
             "MaxLength": "64",
@@ -239,8 +239,8 @@
                 "No"
             ],
             "ConstraintDescription": "The value should be Yes/No.",
-            "Default": "Yes",
-            "Description": "Include samples in repository or not",
+            "Default": "No",
+            "Description": "Do you want to include samples in the repository? Select No if the foodmart or sugarcrm databases already exist.",
             "Type": "String"
         },
         "NewBucket": {

@@ -585,7 +585,7 @@
                         },
                         "services" : {
                             "tomcat8" : {
-                                "enaled" : "false",
+                                "enabled" : "false",
                                 "ensureRunning" : "false"
                             }
                         }
